@@ -39,11 +39,19 @@ module CassandraObject
 
     module Naming
       def column_family=(column_family)
-        @column_family = column_family
+        write_inheritable_attribute(:column_family, column_family)
       end
 
       def column_family
-        @column_family || name.pluralize
+        read_inheritable_attribute(:column_family) || name.pluralize
+      end
+
+      def relationships_column_family=(name)
+        write_inheritable_attribute(:relationships_column_family, name)
+      end
+
+      def relationships_column_family
+        read_inheritable_attribute(:relationships_column_family) || "#{column_family.singularize}Relationships"
       end
     end
     extend Naming
