@@ -265,4 +265,11 @@ class BasicScenariosTest < CassandraObjectTestCase
       Payment.get(payment.key)
     end
   end
+
+  test "nil columns should be deleted" do
+    a = Appointment.create(:title => "hm", :start_time => Time.now, :end_time => Time.now + 200)
+    a.end_time = nil
+    a.save!
+    assert_equal nil, a.reload.end_time
+  end
 end

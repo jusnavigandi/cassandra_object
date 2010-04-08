@@ -75,8 +75,16 @@ module CassandraObject
       end
 
       def write(key, attributes, schema_version)
+        removable = []
+        attributes.each{|k,v|
+          if v.nil?
+            attributes.delete(k)
+            removable << k
+          end
+        }
         returning(key) do |key|
           connection.insert(column_family, key.to_s, encode_columns_hash(attributes, schema_version), :consistency => write_consistency_for_thrift)
+          removable.each{|c| connection.remove(column_family, key.to_s, c) }
         end
       end
 
