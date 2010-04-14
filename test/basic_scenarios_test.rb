@@ -84,11 +84,29 @@ class BasicScenariosTest < CassandraObjectTestCase
     assert_equal invoice.key, Invoice.parse_key(param)
   end
 
-  test "setting a column_family" do
-    class Foo < CassandraObject::Base
-      self.column_family = 'Bar'
+  context "setting the column family" do
+    should "work via set_column_family" do
+      class Foo < CassandraObject::Base
+        set_column_family 'Bar'
+      end
+      assert_equal 'Bar', Foo.column_family
     end
-    assert_equal 'Bar', Foo.column_family
+
+    should "work via set_column_family with a block" do
+      class Foo < CassandraObject::Base
+        set_column_family do 
+          'Bar'
+        end
+      end
+      assert_equal 'Bar', Foo.column_family
+    end
+
+    should "work via self.column_family=" do
+      class Foo < CassandraObject::Base
+        self.column_family = 'Bar'
+      end
+      assert_equal 'Bar', Foo.column_family
+    end
   end
 
   context "destroying a customer with invoices" do

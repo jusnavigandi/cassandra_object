@@ -38,31 +38,32 @@ module CassandraObject
     extend ConnectionManagement
 
     module Naming
-      def column_family=(column_family)
-        @column_family = column_family
-      end
-
       def column_family
         @column_family || name.pluralize
       end
+
+      def set_column_family(value = nil, &block)
+        define_attr_method :column_family, value, &block
+      end
+      alias :column_family= :set_column_family
     end
     extend Naming
-    
+
     if CassandraObject.old_active_support
       def self.lookup_ancestors
         super.select { |x| x.model_name.present? }
       end
     end
-    
+
     extend ActiveModel::Naming
-    
+
     module ConfigurationDumper
       def storage_config_xml
         subclasses.map(&:constantize).map(&:column_family_configuration).flatten.map do |config|
           config_to_xml(config)
         end.join("\n")
       end
-      
+
       def config_to_xml(config)
         xml = "<ColumnFamily "
         config.each do |(attr_name, attr_value)|
