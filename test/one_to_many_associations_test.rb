@@ -105,7 +105,11 @@ class OneToManyAssociationsTest < CassandraObjectTestCase
       @second = @customer.invoices.create :number => 50, :total => 25.0
     end
 
-    should "suport overriding :reversed value" do
+    should "support default order" do
+      assert_ordered [@second.key, @first.key], @customer.invoices.all.map(&:key)
+    end
+
+    should "support overriding :reversed value" do
       assert_ordered [@first.key, @second.key], @customer.invoices.all(:reversed => false).map(&:key)
     end
   end
