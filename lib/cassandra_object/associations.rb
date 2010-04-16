@@ -11,7 +11,7 @@ module CassandraObject
 
     module ClassMethods
       def column_family_configuration
-        super << {:Name=>"#{name}Relationships", :CompareWith=>"UTF8Type", :CompareSubcolumnsWith=>"TimeUUIDType", :ColumnType=>"Super"}
+        super << {:Name=>relationships_column_family, :CompareWith=>"UTF8Type", :CompareSubcolumnsWith=>"TimeUUIDType", :ColumnType=>"Super"}
       end
       
       def association(association_name, options= {})
@@ -24,7 +24,7 @@ module CassandraObject
       
       def remove(key)
         begin
-          connection.remove("#{name}Relationships", key.to_s)
+          connection.remove(relationships_column_family, key.to_s)
         rescue Cassandra::AccessError => e
           raise e unless e.message =~ /Invalid column family/
         end

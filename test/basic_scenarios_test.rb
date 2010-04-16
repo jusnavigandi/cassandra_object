@@ -92,20 +92,27 @@ class BasicScenariosTest < CassandraObjectTestCase
       assert_equal 'Bar', Foo.column_family
     end
 
-    should "work via set_column_family with a block" do
-      class Foo < CassandraObject::Base
-        set_column_family do 
-          'Bar'
-        end
-      end
-      assert_equal 'Bar', Foo.column_family
-    end
-
     should "work via self.column_family=" do
       class Foo < CassandraObject::Base
         self.column_family = 'Bar'
       end
       assert_equal 'Bar', Foo.column_family
+    end
+  end
+
+  context "setting the relationships column family" do
+    should "work via set_relationships_column_family" do
+      class Foo < CassandraObject::Base
+        set_relationships_column_family 'BarRelations'
+      end
+      assert_equal 'BarRelations', Foo.relationships_column_family
+    end
+
+    should "work via self.relationships_column_family=" do
+      class Foo < CassandraObject::Base
+        self.relationships_column_family = 'BarRelations'
+      end
+      assert_equal 'BarRelations', Foo.relationships_column_family
     end
   end
 
