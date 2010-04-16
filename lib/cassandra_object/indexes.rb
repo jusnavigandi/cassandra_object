@@ -57,7 +57,9 @@ module CassandraObject
       end
       
       def write(record)
-        @model_class.connection.insert(column_family, record.send(@attribute_name).to_s, {@attribute_name.to_s=>{new_key=>record.key.to_s}})
+        key = record.send(@attribute_name)
+        return if key.nil?
+        @model_class.connection.insert(column_family, key.to_s, {@attribute_name.to_s=>{new_key=>record.key.to_s}})
       end
       
       def remove(record)
