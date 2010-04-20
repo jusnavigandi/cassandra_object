@@ -89,6 +89,7 @@ module CassandraObject
       @target_class  = target_class
       @column_family = column_family
       @key           = key.to_s
+      @reversed      = options[:reversed] || false
       @options       = options
       @validators    = []
     end
@@ -107,7 +108,7 @@ module CassandraObject
       while objects.size < number_to_find && !out_of_keys
         index_results = connection.get(@column_family, @key, :count=>limit,
                                                              :start=>start_with,
-                                                             :reversed=>@options[:reversed])
+                                                             :reversed=>@reversed)
 
         out_of_keys  = index_results.size < limit
 

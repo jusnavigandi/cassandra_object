@@ -96,6 +96,7 @@
       <ColumnFamily CompareWith="UTF8Type" Name="Customers" />
       <ColumnFamily CompareWith="UTF8Type" CompareSubcolumnsWith="TimeUUIDType" ColumnType="Super" Name="CustomerRelationships" />
       <ColumnFamily CompareWith="TimeUUIDType" Name="CustomersByLastName" />
+      <ColumnFamily CompareWith="TimeUUIDType" Name="FirstNames" />
       <ColumnFamily CompareWith="UTF8Type" Name="Invoices" />
       <ColumnFamily CompareWith="UTF8Type" CompareSubcolumnsWith="TimeUUIDType" ColumnType="Super" Name="InvoiceRelationships" />
       <ColumnFamily CompareWith="UTF8Type" Name="InvoicesByNumber" />
