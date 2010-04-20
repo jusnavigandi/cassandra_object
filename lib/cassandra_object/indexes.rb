@@ -13,7 +13,7 @@ module CassandraObject
         @attribute_name = attribute_name
         @model_class    = model_class
         @reversed       = options[:reversed]
-        @column_family  = @model_class.column_family + "By" + @attribute_name.to_s.camelize 
+        @column_family  = options[:column_family] || @model_class.column_family + "By" + @attribute_name.to_s.camelize 
       end
     end
 
