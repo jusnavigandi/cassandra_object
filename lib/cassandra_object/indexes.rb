@@ -45,7 +45,7 @@ module CassandraObject
 
     class Index < BaseIndex
       def find(attribute_value, options = {})
-        cursor = CassandraObject::Cursor.new(@model_class, column_family, attribute_value.to_s, @attribute_name.to_s, :start_after=>options[:start_after], :reversed=>@reversed)
+        cursor = CassandraObject::IndexCursor.new(@model_class, column_family, attribute_value.to_s, :start_after=>options[:start_after], :reversed=>@reversed)
         cursor.validator do |object|
           object.send(@attribute_name) == attribute_value
         end
@@ -53,7 +53,7 @@ module CassandraObject
       end
 
       def write(record)
-        @model_class.connection.insert(column_family, record.send(@attribute_name).to_s, {@attribute_name.to_s=>{new_key=>record.key.to_s}})
+        @model_class.connection.insert(column_family, record.send(@attribute_name).to_s, {new_key=>record.key.to_s})
       end
 
       def remove(record)
