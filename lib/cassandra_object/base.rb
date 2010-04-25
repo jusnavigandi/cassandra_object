@@ -23,7 +23,7 @@ require 'cassandra_object/mocking'
 
 module CassandraObject
   class Base
-    class_inheritable_accessor :connection
+    cattr_accessor :connection
     class_inheritable_writer :connection_class
 
     def self.connection_class
