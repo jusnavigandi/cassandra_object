@@ -272,4 +272,5 @@ class TypesTest < CassandraObjectTestCase
         }
       end
     end
+  end
 end
