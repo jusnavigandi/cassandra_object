@@ -20,6 +20,7 @@ require 'cassandra_object/cursor'
 require 'cassandra_object/collection'
 require 'cassandra_object/types'
 require 'cassandra_object/mocking'
+require 'cassandra_object/timestamps'
 
 module CassandraObject
   class Base
@@ -81,6 +82,7 @@ module CassandraObject
     include Indexes
     include Dirty
 
+    include Timestamps
     include Validation
     include Associations
 

@@ -17,6 +17,7 @@ class Customer < CassandraObject::Base
   attribute :date_of_birth,  :type => :date
   attribute :preferences,    :type => :hash
   attribute :custom_storage, :type => String, :converter=>ReverseStorage
+  timestamps!
 
   validate :should_be_cool
   validates_presence_of :last_name
