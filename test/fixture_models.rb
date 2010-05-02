@@ -16,13 +16,16 @@ class Customer < CassandraObject::Base
   attribute :last_name,      :type => :string
   attribute :date_of_birth,  :type => :date
   attribute :preferences,    :type => :hash
+  attribute :slug,           :type => :string
   attribute :custom_storage, :type => String, :converter=>ReverseStorage
   timestamps!
 
   validate :should_be_cool
   validates_presence_of :last_name
 
-  after_create :set_after_create_called
+  before_save   :set_slug
+  before_create :set_slug
+  after_create  :set_after_create_called
 
   key :uuid
 
@@ -32,6 +35,10 @@ class Customer < CassandraObject::Base
 
   def after_create_called?
     @after_create_called
+  end
+
+  def set_slug
+    self.slug = self.first_name.downcase
   end
 
   def set_after_create_called

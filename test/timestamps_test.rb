@@ -18,12 +18,22 @@ class TimestampsTest < CassandraObjectTestCase
     updated_time = @customer.updated_at
     @customer.last_name = "WTF"
     @customer.save
-    assert_not_equal @customer.updated_at, updated_time
+    assert_not_equal updated_time, @customer.updated_at
   end
 
   test "not change updated_at while object not save" do
     updated_time = @customer.updated_at
     @customer.last_name = "WTF"
-    assert_equal @customer.updated_at, updated_time
+    assert_equal updated_time, @customer.updated_at
+  end
+
+  test "callback must continue working" do
+    @other = Customer.create :first_name => "Tom", :last_name => "Cavalcante", :date_of_birth => 30.years.ago.to_date
+    assert @other.valid?, @other.errors.full_messages.to_sentence
+    assert_equal 'tom', @other.slug
+
+    @customer.first_name = "Evan"
+    @customer.save
+    assert_equal 'evan', @customer.slug
   end
 end
