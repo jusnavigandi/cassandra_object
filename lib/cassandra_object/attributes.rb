@@ -40,7 +40,7 @@ module CassandraObject
       def define_attribute_methods(force = false)
         return unless model_attributes
         undefine_attribute_methods if force
-        super(model_attributes.keys)
+        super(model_attributes.keys.map(&:to_sym))
       end
       
       def register_attribute_type(name, expected_type, converter)

@@ -44,7 +44,7 @@ module CassandraObject
           raise ArgumentError, "Invalid read consistency level: '#{options[:consistency]}'. Valid options are [:quorum, :one]"
         end
 
-        attribute_results = connection.multi_get(column_family, keys.map(&:to_s), :count=>options[:limit], :consistency=>consistency_for_thrift(options[:consistency]))
+        attribute_results = connection.multi_get(column_family, keys.map{|key| key.respond_to?(:key) ? key.key : key.to_s }, :count=>options[:limit], :consistency=>consistency_for_thrift(options[:consistency]))
 
         attribute_results.inject(ActiveSupport::OrderedHash.new) do |memo, (key, attributes)|
           if attributes.empty?
@@ -61,7 +61,7 @@ module CassandraObject
       end
 
       def all(keyrange = ''..'', options = {})
-        connection.get_range(column_family, :start => keyrange.first, :finish => keyrange.last, :count=>(options[:limit] || 100)).map {|key| get(key) }
+        connection.get_range(column_family, :start => keyrange.first, :finish => keyrange.last, :count=>(options[:limit] || 100)).map {|key| get(key) }.compact
       end
 
       def first(keyrange = ''..'', options = {})
@@ -75,8 +75,16 @@ module CassandraObject
       end
 
       def write(key, attributes, schema_version)
+        removable = []
+        attributes.each{|k,v|
+          if v.nil?
+            attributes.delete(k)
+            removable << k
+          end
+        }
         returning(key) do |key|
           connection.insert(column_family, key.to_s, encode_columns_hash(attributes, schema_version), :consistency => write_consistency_for_thrift)
+          removable.each{|c| connection.remove(column_family, key.to_s, c) }
         end
       end
 

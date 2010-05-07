@@ -24,7 +24,7 @@ require 'cassandra_object/timestamps'
 
 module CassandraObject
   class Base
-    class_inheritable_accessor :connection
+    cattr_accessor :connection
     class_inheritable_writer :connection_class
 
     def self.connection_class
@@ -40,30 +40,40 @@ module CassandraObject
 
     module Naming
       def column_family=(column_family)
-        @column_family = column_family
+        write_inheritable_attribute(:column_family, column_family)
       end
+      alias :set_column_family :column_family=
 
       def column_family
-        @column_family || name.pluralize
+        read_inheritable_attribute(:column_family) || name.pluralize
+      end
+
+      def relationships_column_family=(name)
+        write_inheritable_attribute(:relationships_column_family, name)
+      end
+      alias :set_relationships_column_family :relationships_column_family=
+
+      def relationships_column_family
+        read_inheritable_attribute(:relationships_column_family) || "#{column_family.singularize}Relationships"
       end
     end
     extend Naming
-    
+
     if CassandraObject.old_active_support
       def self.lookup_ancestors
         super.select { |x| x.model_name.present? }
       end
     end
-    
+
     extend ActiveModel::Naming
-    
+
     module ConfigurationDumper
       def storage_config_xml
         subclasses.map(&:constantize).map(&:column_family_configuration).flatten.map do |config|
           config_to_xml(config)
         end.join("\n")
       end
-      
+
       def config_to_xml(config)
         xml = "<ColumnFamily "
         config.each do |(attr_name, attr_value)|

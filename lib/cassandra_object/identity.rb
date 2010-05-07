@@ -15,7 +15,7 @@ module CassandraObject
       # @param the options you want to pass along to the key factory (like :attributes => :name, for a natural key).
       # 
       def key(name_or_factory = :uuid, *options)
-        @key_factory = case name_or_factory
+        factory = case name_or_factory
         when :uuid
           UUIDKeyFactory.new
         when :natural
@@ -23,16 +23,21 @@ module CassandraObject
         else
           name_or_factory
         end
+        write_inheritable_attribute(:key_factory, factory)
       end
     
       def next_key(object = nil)
-        returning(@key_factory.next_key(object)) do |key|
+        returning(key_factory.next_key(object)) do |key|
           raise "Keys may not be nil" if key.nil?
         end
       end
       
+      def key_factory
+        read_inheritable_attribute(:key_factory) || UUIDKeyFactory.new
+      end
+
       def parse_key(string)
-        @key_factory.parse(string)
+        key_factory.parse(string)
       end
     end
     

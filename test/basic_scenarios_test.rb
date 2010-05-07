@@ -84,11 +84,36 @@ class BasicScenariosTest < CassandraObjectTestCase
     assert_equal invoice.key, Invoice.parse_key(param)
   end
 
-  test "setting a column_family" do
-    class Foo < CassandraObject::Base
-      self.column_family = 'Bar'
+  context "setting the column family" do
+    should "work via set_column_family" do
+      class Foo < CassandraObject::Base
+        set_column_family 'Bar'
+      end
+      assert_equal 'Bar', Foo.column_family
     end
-    assert_equal 'Bar', Foo.column_family
+
+    should "work via self.column_family=" do
+      class Foo < CassandraObject::Base
+        self.column_family = 'Bar'
+      end
+      assert_equal 'Bar', Foo.column_family
+    end
+  end
+
+  context "setting the relationships column family" do
+    should "work via set_relationships_column_family" do
+      class Foo < CassandraObject::Base
+        set_relationships_column_family 'BarRelations'
+      end
+      assert_equal 'BarRelations', Foo.relationships_column_family
+    end
+
+    should "work via self.relationships_column_family=" do
+      class Foo < CassandraObject::Base
+        self.relationships_column_family = 'BarRelations'
+      end
+      assert_equal 'BarRelations', Foo.relationships_column_family
+    end
   end
 
   context "destroying a customer with invoices" do
@@ -239,5 +264,12 @@ class BasicScenariosTest < CassandraObjectTestCase
     assert_nothing_raised do
       Payment.get(payment.key)
     end
+  end
+
+  test "nil columns should be deleted" do
+    a = Appointment.create(:title => "hm", :start_time => Time.now, :end_time => Time.now + 200)
+    a.end_time = nil
+    a.save!
+    assert_equal nil, a.reload.end_time
   end
 end

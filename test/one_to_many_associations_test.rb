@@ -2,6 +2,20 @@ require 'test_helper'
 
 class OneToManyAssociationsTest < CassandraObjectTestCase
   
+  context "A customer with no invoices added to its invoice association" do 
+    setup do
+      @customer = Customer.create :first_name    => "Michael",
+                                  :last_name     => "Koziarski",
+                                  :date_of_birth => Date.parse("1980/08/15")
+
+      assert @customer.valid?, @customer.errors                            
+    end
+    
+    should "return an empty array for the association" do
+      assert_equal [], @customer.invoices.to_a 
+    end
+  end
+  
   context "A customer with an invoice added to its invoice association" do 
     setup do
       @customer = Customer.create :first_name    => "Michael",
@@ -74,6 +88,25 @@ class OneToManyAssociationsTest < CassandraObjectTestCase
     end
   end
   
+  context "A customer with an invoice added to its paid invoices association (which has no explicit reversed option)" do
+    setup do
+      @customer = Customer.create :first_name    => "Michael",
+                                  :last_name     => "Koziarski",
+                                  :date_of_birth => Date.parse("1980/08/15")
+
+      assert @customer.valid?, @customer.errors
+
+      @invoice  = mock_invoice
+      assert @invoice.valid?, @invoice.errors
+
+      @customer.paid_invoices << @invoice
+    end
+
+    should "return invoice from association" do
+      assert_equal @invoice, @customer.paid_invoices.to_a.first
+    end
+  end
+
   context "Association proxy create" do
     setup do
       @customer = Customer.create! :first_name    => "Michael",
@@ -105,7 +138,11 @@ class OneToManyAssociationsTest < CassandraObjectTestCase
       @second = @customer.invoices.create :number => 50, :total => 25.0
     end
 
-    should "suport overriding :reversed value" do
+    should "support default order" do
+      assert_ordered [@second.key, @first.key], @customer.invoices.all.map(&:key)
+    end
+
+    should "support overriding :reversed value" do
       assert_ordered [@first.key, @second.key], @customer.invoices.all(:reversed => false).map(&:key)
     end
   end
