@@ -146,7 +146,7 @@ module CassandraObject
 
     module InstanceMethods
       def save
-        run_callbacks :save do
+        _run_persistence_callbacks :save do
           create_or_update
         end
       end
@@ -161,7 +161,7 @@ module CassandraObject
       end
       
       def create
-        run_callbacks :create do
+        _run_persistence_callbacks :create do
           @key ||= self.class.next_key(self)
           _write
           @new_record = false
@@ -170,7 +170,7 @@ module CassandraObject
       end
       
       def update
-        run_callbacks :update do
+        _run_persistence_callbacks :update do
           _write
         end
       end
@@ -185,7 +185,7 @@ module CassandraObject
       end
 
       def destroy
-        run_callbacks :destroy do 
+        _run_persistence_callbacks :destroy do 
           self.class.remove(key)
         end
       end
@@ -194,6 +194,17 @@ module CassandraObject
         self.class.get(self.key)
       end
       
+      protected
+        def _run_persistence_callbacks(kind, &blk)
+          if CassandraObject.old_active_support
+            run_callbacks "before_#{kind}"
+            yield
+            run_callbacks "after_#{kind}"
+          else
+            run_callbacks(kind) { yield }
+          end
+        end
+
     end
   end
 end

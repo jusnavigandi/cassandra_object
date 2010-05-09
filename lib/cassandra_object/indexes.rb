@@ -31,7 +31,7 @@ module CassandraObject
       end
 
       def write(record)
-        @model_class.connection.insert(column_family, record.send(@attribute_name).to_s, {'key'=>record.key.to_s})
+        @model_class.connection.insert(column_family, record.send(@attribute_name).to_s, {'key'=>record.key.to_s}) if record.send(@attribute_name)
       end
 
       def remove(record)
@@ -66,7 +66,7 @@ module CassandraObject
       end
 
       def column_family_configuration
-        {:Name=>column_family, :CompareWith=>"UTF8Type", :ColumnType=>"Super", :CompareSubcolumnsWith=>"TimeUUIDType"}
+        {:Name=>column_family, :CompareWith=>"TimeUUIDType"}
       end
 
     end

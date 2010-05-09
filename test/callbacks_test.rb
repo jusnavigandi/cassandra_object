@@ -15,5 +15,9 @@ class CallbacksTest < CassandraObjectTestCase
     should "have had after_create called" do
       assert @customer.after_create_called?
     end
+
+    should "have had all callbacks called" do
+      assert_equal [:before_save, :before_create, :after_create, :testing, :after_save], @customer.call_backs
+    end
   end
 end

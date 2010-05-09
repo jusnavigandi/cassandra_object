@@ -23,17 +23,28 @@ class Customer < CassandraObject::Base
   validate :should_be_cool
   validates_presence_of :last_name
 
-  before_save   :set_slug
-  before_create :set_slug
+  before_save   :set_slug, :set_before_save
+  before_create :set_slug, :set_before_create
+  after_save    :set_testing
+  after_save    :set_after_save
+  after_create  :set_after_create
   after_create  :set_after_create_called
 
   key :uuid
   
   index :first_name, :column_family => "FirstNames"
-  index :last_name, :reversed=>true
+  index :last_name,  :reversed=>true
+  index :created_at, :reversed=>true
 
   association :invoices, :unique=>false, :inverse_of=>:customer, :reversed=>true
   association :paid_invoices, :unique=>false, :class_name=>'Invoice'
+
+  attr_accessor :call_backs
+
+  def initialize(*args)
+    @call_backs = []
+    super
+  end
 
   def after_create_called?
     @after_create_called
@@ -41,6 +52,20 @@ class Customer < CassandraObject::Base
 
   def set_slug
     self.slug = self.first_name.downcase
+  end
+
+  %w(before after).each do |time|
+    %w(save create).each do |action|
+      class_eval <<-eom
+        def set_#{time}_#{action}
+          @call_backs << "#{time}_#{action}".to_sym
+        end
+      eom
+    end
+  end
+
+  def set_testing
+    @call_backs << :testing
   end
 
   def set_after_create_called
